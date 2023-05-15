@@ -2,42 +2,41 @@ import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import './App.css';
 
-import {AiFillSetting} from "react-icons/ai"
+//import {AiFillSetting} from "react-icons/ai"
+// <AiFillSetting size={16}/>
 
-const CardSettings = () => {
+// const CardSettings = () => {
 
-  
+//   const settingStyle = {
+//     background : "#282c34",
+//     color      : "white",
+//     display    : "flex",
+//     justifyContent:"column",
+//     padding    : "10px"
+//   }
 
-  const settingStyle = {
-    background : "#282c34",
-    color      : "white",
-    display    : "flex",
-    justifyContent:"column",
-    padding    : "10px"
-  }
+//   const [selectedOption, setSelectedOption] = useState("dark");
 
-  const [selectedOption, setSelectedOption] = useState("dark");
+//   const handleOptionChange = (e) =>{
+//     setSelectedOption(e.target.value)
+//   }
 
-  const handleOptionChange = (e) =>{
-    setSelectedOption(e.target.value)
-  }
+//   return(
+//     <div className="card-container" style={settingStyle}>
+//          <div>
+//          <input type="radio" value="light" checked = {selectedOption === "light"} onChange={handleOptionChange}/>
+//             Light
+//           </div>
 
-  return(
-    <div className="card-container" style={settingStyle}>
-         <div>
-         <input type="radio" value="light" checked = {selectedOption === "light"} onChange={handleOptionChange}/>
-            Light
-          </div>
+//           <div>
+//          <input type="radio" value="dark" checked={selectedOption === "dark"} onChange={handleOptionChange}/>
+//             VS-Dark
+//           </div>
+//     </div>
+//   );
+// }
 
-          <div>
-         <input type="radio" value="dark" checked={selectedOption === "dark"} onChange={handleOptionChange}/>
-            VS-Dark
-          </div>
-    </div>
-  );
-}
-
-const EditorNav = () => {
+const EditorNav = ({sourceCode}) => {
 
   const navbarStyle = {
     background:"#1f2937",
@@ -55,31 +54,59 @@ const EditorNav = () => {
      cursor:"pointer",
   }
 
-  const settingClickHandler = (e) =>{
+  const RunClickHandler = (e) =>{
     e.preventDefault();
-    console.log("Setting is clicked")
+    console.log( sourceCode)
+    fetch("http://localhost:5000/compile",{
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+     body: JSON.stringify({code: sourceCode}),
+     
+    })
+    .then((data) => console.log("Request Sent"))
+    .catch((e) => console.log("Something went wrong: " + e))
+    
   }
 
   return(
     <nav style={navbarStyle}>
       <ul>
-         <button onClick = {settingClickHandler}style={btnStyle}> <AiFillSetting size={16}/>Settings</button>
+         <button onClick = {RunClickHandler} style={btnStyle}>Run</button>
       </ul>
     </nav>
+  )
+}
+
+const EditorWindow = () => {
+
+  const [code, setCode] = useState("")
+
+  const handleCodeChange = (code) => {
+   setCode(code)
+  }
+
+  return (
+    <>
+      <EditorNav sourceCode = {code}/>
+      <Editor
+      height = "100vh"
+      defaultLanguage= "rust"
+      defaultValue= "//type your code here"
+      theme= "vs-dark"
+      value = {code}
+      onChange={handleCodeChange}
+      />
+    </>
   )
 }
 
 function App() {
   return (
     <>
-    {/* <EditorNav/> */}
-    <CardSettings/>
-    {/* <Editor
-      height = "90vh"
-      defaultLanguage= "cpp"
-      defaultValue= "//type your code here"
-      theme="vs-dark"
-      /> */}
+     <EditorWindow/>
 
     </>
     
